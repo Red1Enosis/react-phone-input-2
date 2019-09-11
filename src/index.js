@@ -590,6 +590,7 @@ class ReactPhoneInput extends React.Component {
     const unformattedNumber = this.state.formattedNumber.replace(' ', '').replace('(', '').replace(')', '').replace('-', '');
     const newNumber = unformattedNumber.length > 1 ? unformattedNumber.replace(currentSelectedCountry.dialCode, nextSelectedCountry.dialCode) : nextSelectedCountry.dialCode;
     const formattedNumber = this.formatNumber(newNumber.replace(/\D/g, ''), nextSelectedCountry.format);
+
     this.setState({
       showDropdown: false,
       selectedCountry: nextSelectedCountry,
@@ -827,6 +828,7 @@ class ReactPhoneInput extends React.Component {
   render() {
     const { selectedCountry, showDropdown, formattedNumber } = this.state;
     const disableDropdown = this.props.disableDropdown;
+
     const arrowClasses = classNames({'arrow': true, 'up': showDropdown});
     const inputClasses = classNames({
       [this.props.inputClass]: true,
@@ -839,7 +841,7 @@ class ReactPhoneInput extends React.Component {
       'flag-dropdown': true,
       'open-dropdown': showDropdown
     });
-    const inputFlagClasses = `flag ${selectedCountry.iso2}`;
+    const inputFlagClasses = `flag ${selectedCountry && selectedCountry.iso2}`;
 
     return (
       <div
@@ -852,7 +854,7 @@ class ReactPhoneInput extends React.Component {
           onClick={this.handleInputClick}
           onFocus={this.handleInputFocus}
           onBlur={this.handleInputBlur}
-          value={this.state.formattedNumber}
+          value={formattedNumber}
           ref={el => this.numberInputRef = el}
           onKeyDown={this.handleInputKeyDown}
           placeholder={this.props.placeholder}
