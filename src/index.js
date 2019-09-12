@@ -150,10 +150,8 @@ class ReactPhoneInput extends React.Component {
 
     let formattedNumber;
     formattedNumber = (inputNumber === '' && countryGuess === 0) ? '' :
-    this.formatNumber(
       (props.disableCountryCode ? '' : dialCode) + inputNumber.replace(/\D/g, ''),
-      countryGuess.name ? countryGuess.format : undefined
-    );
+        countryGuess.name ? countryGuess.format : undefined
 
     const highlightCountryIndex = filteredCountries.findIndex(o => o == countryGuess);
 
@@ -371,7 +369,7 @@ class ReactPhoneInput extends React.Component {
 
   formatNumber = (text, patternArg) => {
     const { disableCountryCode, enableLongNumbers, autoFormat } = this.props;
-    if (text !== '' && !text.startsWith('+') && this.state.selectedCountry.dialCode !== '1') {
+    if (text !== '' && !text.startsWith('+') && this.state.selectedCountry && this.state.selectedCountry.dialCode !== '1') {
       return '+' + text;
     }
     return text;
