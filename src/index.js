@@ -58,6 +58,7 @@ class ReactPhoneInput extends React.Component {
     onKeyDown: PropTypes.func,
     isValid: PropTypes.func,
     getCountryCode: PropTypes.func,
+    isDropdownShowing: PropTypes.func,
   }
 
   static defaultProps = {
@@ -109,7 +110,8 @@ class ReactPhoneInput extends React.Component {
     keys: {
       UP: 38, DOWN: 40, RIGHT: 39, LEFT: 37, ENTER: 13,
       ESC: 27, PLUS: 43, A: 65, Z: 90, SPACE: 32
-    }
+    },
+    isDropdownShowing: () => null,
   }
 
   constructor(props) {
@@ -172,6 +174,7 @@ class ReactPhoneInput extends React.Component {
 
   componentDidMount() {
     this.props.getCountryCode(this.state.selectedCountry.dialCode)
+    this.props.isDropdownShowing(this.state.showDropdown)
     if (document.addEventListener) {
       document.addEventListener('mousedown', this.handleClickOutside);
       document.addEventListener('keydown', this.handleKeydown);
@@ -485,6 +488,7 @@ class ReactPhoneInput extends React.Component {
         showDropdown: !this.state.showDropdown,
         highlightCountryIndex: this.state.preferredCountries.findIndex(o => o == this.state.selectedCountry)
       }, () => {
+        this.props.isDropdownShowing(this.state.showDropdown)
         if (this.state.showDropdown) {
           this.scrollTo(this.getElement(this.state.highlightCountryIndex));
         }
@@ -498,6 +502,7 @@ class ReactPhoneInput extends React.Component {
         highlightCountryIndex: this.props.disableAreaCodes ? onlyCountries.findIndex(o => o.iso2 == this.state.selectedCountry.iso2) :
           onlyCountries.findIndex(o => o == this.state.selectedCountry)
       }, () => {
+        this.props.isDropdownShowing(this.state.showDropdown)
         if (this.state.showDropdown) {
           this.scrollTo(this.getElement(this.state.highlightCountryIndex + this.state.preferredCountries.length));
         }
@@ -604,7 +609,7 @@ class ReactPhoneInput extends React.Component {
   }
 
   handleInputClick = (e) => {
-    this.setState({ showDropdown: false });
+    this.setState({ showDropdown: false }, () => this.props.isDropdownShowing(false));
     if (this.props.onClick) this.props.onClick(e, this.getCountryData());
   }
 
@@ -622,6 +627,7 @@ class ReactPhoneInput extends React.Component {
       formattedNumber: "+" + nextSelectedCountry.dialCode
     }, () => {
       this.cursorToEnd();
+      this.props.isDropdownShowing(false)
       if (this.props.onChange) this.props.onChange(formattedNumber.replace(/[^0-9]+/g,''), this.getCountryData());
     });
     this.props.getCountryCode(nextSelectedCountry.dialCode)
@@ -705,7 +711,10 @@ class ReactPhoneInput extends React.Component {
       case keys.ESC:
         this.setState({
           showDropdown: false
-        }, this.cursorToEnd);
+        },() => {
+          this.cursorToEnd()
+          this.props.isDropdownShowing(false)
+        });
         break;
       default:
         if ((e.which >= keys.A && e.which <= keys.Z) || e.which === keys.SPACE) {
@@ -727,7 +736,7 @@ class ReactPhoneInput extends React.Component {
 
   handleClickOutside = (e) => {
     if (this.dropdownRef && !this.dropdownContainerRef.contains(e.target)) {
-      this.state.showDropdown && this.setState({ showDropdown: false });
+      this.state.showDropdown && this.setState({ showDropdown: false }, () => this.props.isDropdownShowing(false))
     }
   }
 
