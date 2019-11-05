@@ -186,11 +186,13 @@ class ReactPhoneInput extends React.Component {
   };
 
   replaceTextHoldingCursor = (target, search, replaceWith) => {
-    if (target.value.indexOf(search) >= 0) {
+    if (replaceWith.indexOf(search) >= 0 && replaceWith.length <= search.length) {
+      
       const start = target.selectionStart;
       const end = target.selectionEnd;
-      const textBefore = target.value.substr(0, end);
+      const textBefore = replaceWith.substr(0, end);
       const lengthDiff = (replaceWith.length - search.length) * this.getCountOfReplacedText(textBefore, search);
+
       target.value = target.value.replace(search, replaceWith);
       target.selectionStart = start + lengthDiff;
       target.selectionEnd = end + lengthDiff;
