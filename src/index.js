@@ -200,7 +200,7 @@ class ReactPhoneInput extends React.Component {
   };
 
   componentDidUpdate() {
-    if (this.props.value !== this.state.formattedNumber) {
+    if (this.props.value !== this.state.formattedNumber && this.props.value !== `+${this.state.formattedNumber}`) {
       const input = this.numberInputRef;
 
       // This part is implemented to hold the cursor when editing number
@@ -208,6 +208,10 @@ class ReactPhoneInput extends React.Component {
       this.replaceTextHoldingCursor(input, this.state.formattedNumber, this.props.value);
       this.setState({
         formattedNumber: input.value,
+      });
+    } else if (this.props.value === `+${this.state.formattedNumber}`) {
+      this.setState({
+        formattedNumber: this.props.value,
       });
     }
   }
