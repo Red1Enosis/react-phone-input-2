@@ -186,6 +186,7 @@ class ReactPhoneInput extends React.Component {
   };
 
   replaceTextHoldingCursor = (target, search, replaceWith) => {
+    // The additional check of length is added for not performing the following task on Delete of characters
     if (replaceWith.indexOf(search) >= 0 && replaceWith.length <= search.length) {
       
       const start = target.selectionStart;
@@ -193,6 +194,7 @@ class ReactPhoneInput extends React.Component {
       const textBefore = replaceWith.substr(0, end);
       const lengthDiff = (replaceWith.length - search.length) * this.getCountOfReplacedText(textBefore, search);
 
+      //We want to update input with new value
       target.value = target.value.replace(search, replaceWith);
       target.selectionStart = start + lengthDiff;
       target.selectionEnd = end + lengthDiff;
