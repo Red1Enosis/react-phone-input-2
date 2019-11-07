@@ -186,11 +186,13 @@ class ReactPhoneInput extends React.Component {
   };
 
   replaceTextHoldingCursor = (target, search, replaceWith) => {
-    if (target.value.indexOf(search) >= 0) {
+    if (replaceWith.indexOf(search) >= 0 && replaceWith.length <= search.length) {
+      
       const start = target.selectionStart;
       const end = target.selectionEnd;
-      const textBefore = target.value.substr(0, end);
+      const textBefore = replaceWith.substr(0, end);
       const lengthDiff = (replaceWith.length - search.length) * this.getCountOfReplacedText(textBefore, search);
+
       target.value = target.value.replace(search, replaceWith);
       target.selectionStart = start + lengthDiff;
       target.selectionEnd = end + lengthDiff;
@@ -198,14 +200,26 @@ class ReactPhoneInput extends React.Component {
   };
 
   componentDidUpdate() {
-    if (this.props.value !== this.state.formattedNumber) {
-      const input = this.numberInputRef;
+    if (this.props.value !== this.state.formattedNumber && this.props.value !== `+${this.state.formattedNumber}`) {
 
-      // This part is implemented to hold the cursor when editing number
-      // Solution found from https://stackoverflow.com/questions/40196467/restore-cursor-position-after-replace
-      this.replaceTextHoldingCursor(input, this.state.formattedNumber, this.props.value);
+      // Logic for handling the value update on some other component changes
+      if (this.props.value.length < 5 && this.state.formattedNumber.length > 9 && this.state.formattedNumber.startsWith(this.props.value)) {
+        this.setState({
+          formattedNumber: this.props.value
+        });
+      } else {
+        const input = this.numberInputRef;
+
+        // This part is implemented to hold the cursor when editing number
+        // Solution found from https://stackoverflow.com/questions/40196467/restore-cursor-position-after-replace
+        this.replaceTextHoldingCursor(input, this.state.formattedNumber, this.props.value);
+        this.setState({
+          formattedNumber: input.value,
+        });
+      }
+    } else if (this.props.value === `+${this.state.formattedNumber}`) {
       this.setState({
-        formattedNumber: input.value,
+        formattedNumber: this.props.value,
       });
     }
   }
