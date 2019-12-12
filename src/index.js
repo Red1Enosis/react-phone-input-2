@@ -549,7 +549,9 @@ class ReactPhoneInput extends React.Component {
         freezeSelection = false;
       }
       formattedNumber = this.formatNumber(inputNumber, newSelectedCountry.format); // remove all non numerals from the input
-      newSelectedCountry = newSelectedCountry.dialCode && (inputNumber.startsWith('+') || inputNumber === '') ? newSelectedCountry : this.state.selectedCountry;
+      newSelectedCountry = newSelectedCountry.dialCode && inputNumber.startsWith('+') ? newSelectedCountry : this.state.selectedCountry;
+    } else if (e.target.value.length === 0) {
+      newSelectedCountry = this.state.defaultCountry;
     }
 
     let caretPosition = e.target.selectionStart;
