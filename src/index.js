@@ -59,6 +59,8 @@ class ReactPhoneInput extends React.Component {
     isValid: PropTypes.func,
     getCountryCode: PropTypes.func,
     isDropdownShowing: PropTypes.func,
+    updateValueFromProp: PropTypes.bool, // Used only when someone need to refresh input using props value. Keeping this value true will give you error. U have to make it false once purpose fulfilled.
+    noUSDialCode: PropTypes.bool, // Used only when US dial code should not be shown
   }
 
   static defaultProps = {
@@ -112,6 +114,8 @@ class ReactPhoneInput extends React.Component {
       ESC: 27, PLUS: 43, A: 65, Z: 90, SPACE: 32
     },
     isDropdownShowing: () => null,
+    updateValueFromProp: false,
+    noUSDialCode: false,
   }
 
   constructor(props) {
@@ -152,10 +156,10 @@ class ReactPhoneInput extends React.Component {
 
     let formattedNumber;
     formattedNumber = (inputNumber === '' && countryGuess === 0) ? '' :
-    this.formatNumber(
+    // this.formatNumber(
       (props.disableCountryCode ? '' : dialCode) + inputNumber.replace(/\D/g, ''),
       countryGuess.name ? countryGuess.format : undefined
-    );
+    // );
 
     const highlightCountryIndex = filteredCountries.findIndex(o => o == countryGuess);
 
@@ -180,6 +184,15 @@ class ReactPhoneInput extends React.Component {
     if (document.addEventListener) {
       document.addEventListener('mousedown', this.handleClickOutside);
       document.addEventListener('keydown', this.handleKeydown);
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.props.updateValueFromProp) {
+      this.props.onChange(this.props.value, this.getCountryData());
+      this.setState({
+        formattedNumber: this.props.value,
+      });
     }
   }
 
@@ -365,8 +378,13 @@ class ReactPhoneInput extends React.Component {
   }
 
   formatNumber = (text, patternArg) => {
-    const { disableCountryCode, enableLongNumbers, autoFormat } = this.props;
-    return '+' + text
+    const { noUSDialCode } = this.props;
+    if (text !== '' && !text.startsWith('+') && this.state.selectedCountry) {
+      if (noUSDialCode === false || this.state.selectedCountry.dialCode !== '1') {
+        return '+' + text;
+      }
+    }
+    return text;
     // let pattern;
     // if (disableCountryCode && patternArg) {
     //   pattern = patternArg.split(' ');
