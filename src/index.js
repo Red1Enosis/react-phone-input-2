@@ -539,19 +539,17 @@ class ReactPhoneInput extends React.Component {
 
     if (e.target.value.length > 0) {
       // before entering the number in new format, lets check if the dial code now matches some other country
-      const inputNumber = e.target.value.replace(/\D/g, '');
+      const inputNumber = this.formatNumber(e.target.value.replace(/\D/g, ''));
 
       // we don't need to send the whole number to guess the country... only the first 6 characters are enough
       // the guess country function can then use memoization much more effectively since the set of input it
       // gets has drastically reduced
       if (!this.state.freezeSelection || this.state.selectedCountry.dialCode.length > inputNumber.length) {
-        newSelectedCountry = this.guessSelectedCountry(inputNumber.substring(0, 6), this.state.onlyCountries, this.state.defaultCountry);
+        newSelectedCountry = this.guessSelectedCountry(inputNumber.substring(1, 7), this.state.onlyCountries, this.state.defaultCountry);
         freezeSelection = false;
       }
       formattedNumber = this.formatNumber(inputNumber, newSelectedCountry.format); // remove all non numerals from the input
-      newSelectedCountry = newSelectedCountry.dialCode && inputNumber.startsWith('+') ? newSelectedCountry : this.state.selectedCountry;
-    } else if (e.target.value.length === 0) {
-      newSelectedCountry = this.state.defaultCountry;
+      newSelectedCountry = newSelectedCountry.dialCode && (inputNumber.startsWith('+') || inputNumber === '') ? newSelectedCountry : this.state.selectedCountry;
     }
 
     let caretPosition = e.target.selectionStart;
