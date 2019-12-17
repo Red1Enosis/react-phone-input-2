@@ -380,7 +380,7 @@ class ReactPhoneInput extends React.Component {
   formatNumber = (text, patternArg) => {
     const { noDialCode } = this.props;
     if (text !== '' && !text.startsWith('+') && this.state.selectedCountry) {
-      if (noDialCode.includes(this.state.selectedCountry.iso2)) {
+      if (noDialCode.includes(this.state.selectedCountry.iso2) === false) {
         return '+' + text;
       }
     }
