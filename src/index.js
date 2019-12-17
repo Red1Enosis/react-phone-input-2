@@ -60,7 +60,7 @@ class ReactPhoneInput extends React.Component {
     getCountryCode: PropTypes.func,
     isDropdownShowing: PropTypes.func,
     updateValueFromProp: PropTypes.bool, // Used only when someone need to refresh input using props value. Keeping this value true will give you error. U have to make it false once purpose fulfilled.
-    noUSDialCode: PropTypes.bool, // Used only when US dial code should not be shown
+    noDialCode: PropTypes.array, // Used only when dial code should not be shown
   }
 
   static defaultProps = {
@@ -115,7 +115,7 @@ class ReactPhoneInput extends React.Component {
     },
     isDropdownShowing: () => null,
     updateValueFromProp: false,
-    noUSDialCode: false,
+    noDialCode: [],
   }
 
   constructor(props) {
@@ -378,9 +378,9 @@ class ReactPhoneInput extends React.Component {
   }
 
   formatNumber = (text, patternArg) => {
-    const { noUSDialCode } = this.props;
+    const { noDialCode } = this.props;
     if (text !== '' && !text.startsWith('+') && this.state.selectedCountry) {
-      if (noUSDialCode === false || this.state.selectedCountry.dialCode !== '1') {
+      if (noDialCode.includes(this.state.selectedCountry.iso2)) {
         return '+' + text;
       }
     }
@@ -493,13 +493,23 @@ class ReactPhoneInput extends React.Component {
     }
   }
 
+  determineFormattedNumber = (value, disableCountryCode) => {
+    if (value.startsWith('+') || !disableCountryCode) {
+      return '+';
+    } else {
+      return '';
+    }
+  }
+
   handleInput = (e) => {
-    let formattedNumber = this.props.disableCountryCode ? '' : '+';
+    let formattedNumber = this.determineFormattedNumber(e.target.value, this.props.disableCountryCode);
     let newSelectedCountry = this.state.selectedCountry;
     let freezeSelection = this.state.freezeSelection;
 
     if(!this.props.countryCodeEditable) {
-        const updatedInput = '+' + newSelectedCountry.dialCode;
+        // const updatedInput = '+' + newSelectedCountry.dialCode;
+        const updatedInput = newSelectedCountry.dialCode;
+
         if (e.target.value.length < updatedInput.length) {
             return this.setState({
               formattedNumber: updatedInput,
@@ -603,19 +613,20 @@ class ReactPhoneInput extends React.Component {
   }
   
   handleInputFocus = (e) => {
-    // if the input is blank, insert dial code of the selected country
-    if (this.numberInputRef) {
-      if (this.numberInputRef.value === '+' && this.state.selectedCountry && !this.props.disableCountryCode) {
-        this.setState({
-          formattedNumber: '+' + this.state.selectedCountry.dialCode
-        }, () => setTimeout(this.cursorToEnd, 10));
-      }
-    }
+    // if the input is blank, insert dial code of the selected country\
+    // We don't need this method as of now as the formatting is done before even focus.
+    // if (this.numberInputRef) {
+    //   if (this.numberInputRef.value === '+' && this.state.selectedCountry && !this.props.disableCountryCode) {
+    //     this.setState({
+    //       formattedNumber: '+' + this.state.selectedCountry.dialCode
+    //     }, () => setTimeout(this.cursorToEnd, 10));
+    //   }
+    // }
 
-    this.setState({ placeholder: '' });
+    // this.setState({ placeholder: '' });
 
-    this.props.onFocus && this.props.onFocus(e, this.getCountryData());
-    setTimeout(this.cursorToEnd, 10);
+    // this.props.onFocus && this.props.onFocus(e, this.getCountryData());
+    // setTimeout(this.cursorToEnd, 10);
   }
 
   handleInputBlur = (e) => {
@@ -842,7 +853,7 @@ class ReactPhoneInput extends React.Component {
       'flag-dropdown': true,
       'open-dropdown': showDropdown
     });
-    const inputFlagClasses = `flag ${selectedCountry.iso2}`;
+    const inputFlagClasses = `flag ${selectedCountry && selectedCountry.iso2}`;
 
     return (
       <div
@@ -855,7 +866,7 @@ class ReactPhoneInput extends React.Component {
           onClick={this.handleInputClick}
           onFocus={this.handleInputFocus}
           onBlur={this.handleInputBlur}
-          value={this.state.formattedNumber}
+          value={formattedNumber}
           ref={el => this.numberInputRef = el}
           onKeyDown={this.handleInputKeyDown}
           placeholder={this.props.placeholder}
