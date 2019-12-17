@@ -60,7 +60,7 @@ class ReactPhoneInput extends React.Component {
     getCountryCode: PropTypes.func,
     isDropdownShowing: PropTypes.func,
     updateValueFromProp: PropTypes.bool, // Used only when someone need to refresh input using props value. Keeping this value true will give you error. U have to make it false once purpose fulfilled.
-    noDialCode: PropTypes.array, // Used only when dial code should not be shown
+    noDialCode: PropTypes.array, // Used only when dial code should not be shown. Array of the country iso2 codes.
   }
 
   static defaultProps = {
@@ -179,7 +179,7 @@ class ReactPhoneInput extends React.Component {
   }
 
   componentDidMount() {
-    this.props.getCountryCode(this.state.selectedCountry.dialCode)
+    this.props.getCountryCode(this.state.selectedCountry.dialCode, this.state.selectedCountry)
     this.props.isDropdownShowing(this.state.showDropdown)
     if (document.addEventListener) {
       document.addEventListener('mousedown', this.handleClickOutside);
@@ -609,7 +609,7 @@ class ReactPhoneInput extends React.Component {
       this.props.isDropdownShowing(false)
       if (this.props.onChange) this.props.onChange(formattedNumber.replace(/[^0-9]+/g,''), this.getCountryData());
     });
-    this.props.getCountryCode(nextSelectedCountry.dialCode)
+    this.props.getCountryCode(nextSelectedCountry.dialCode, nextSelectedCountry)
   }
   
   handleInputFocus = (e) => {
