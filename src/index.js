@@ -59,8 +59,8 @@ class ReactPhoneInput extends React.Component {
     isValid: PropTypes.func,
     getCountryCode: PropTypes.func,
     isDropdownShowing: PropTypes.func,
-    updateValueFromProp: PropTypes.bool, // Used only when someone need to refresh input using props value. Keeping this value true will give you error. U have to make it false once purpose fulfilled.
-    noDialCode: PropTypes.array, // Used only when dial code should not be shown. Array of the country iso2 codes.
+    useValueFromProp: PropTypes.bool, // Used only when someone need to refresh input using props value. Keeping this value true will give you error. U have to make it false once purpose fulfilled.
+    noDialCodeCountries: PropTypes.array, // Used only when dial code should not be shown. Array of the country iso2 codes.
   }
 
   static defaultProps = {
@@ -114,8 +114,8 @@ class ReactPhoneInput extends React.Component {
       ESC: 27, PLUS: 43, A: 65, Z: 90, SPACE: 32
     },
     isDropdownShowing: () => null,
-    updateValueFromProp: false,
-    noDialCode: [],
+    useValueFromProp: false,
+    noDialCodeCountries: [],
   }
 
   constructor(props) {
@@ -188,7 +188,7 @@ class ReactPhoneInput extends React.Component {
   }
 
   componentDidUpdate() {
-    if (this.props.updateValueFromProp) {
+    if (this.props.useValueFromProp) {
       this.props.onChange(this.props.value, this.getCountryData());
       this.setState({
         formattedNumber: this.props.value,
@@ -378,9 +378,9 @@ class ReactPhoneInput extends React.Component {
   }
 
   formatNumber = (text, patternArg) => {
-    const { noDialCode } = this.props;
+    const { noDialCodeCountries } = this.props;
     if (text !== '' && !text.startsWith('+') && this.state.selectedCountry) {
-      if (noDialCode.includes(this.state.selectedCountry.iso2) === false) {
+      if (noDialCodeCountries.includes(this.state.selectedCountry.iso2) === false) {
         return '+' + text;
       }
     }
